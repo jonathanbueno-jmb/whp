@@ -695,7 +695,7 @@ function renderizarTabela() {
     
     // Comprovante
     const tdComprovante = document.createElement('td');
-    const cte = String(linha[colunasExcel['CTE']] || '');
+    const cte = String(linha[colunasExcel['CTE']] || '').trim();
     if (cte && cte.toLowerCase() !== 'nan' && imagens[cte] && imagens[cte].length) {
       const badge = document.createElement('span');
       badge.className = 'comprovante-badge';
@@ -731,7 +731,7 @@ function atualizarEstatisticas() {
       totalCredito += valor;
     }
     
-    const c = String(linha[colCTE] || '');
+    const c = String(linha[colCTE] || '').trim();
     if (c && c.toLowerCase() !== 'nan' && imagens[c]) {
       cteSet.add(c);
     }
@@ -757,7 +757,7 @@ function aplicarFiltrosAutomatico() {
     }
     
     if (comprovanteFiltro) {
-      const cte = String(linha[colunasExcel['CTE']] || '');
+      const cte = String(linha[colunasExcel['CTE']] || '').trim();
       const temComprovante = cte && cte.toLowerCase() !== 'nan' && imagens[cte] && imagens[cte].length > 0;
       
       if (comprovanteFiltro === 'com') {
