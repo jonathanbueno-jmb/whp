@@ -220,6 +220,8 @@
             border-radius: 5px;
             margin-bottom: 20px;
             display: none;
+            max-height: 600px;
+            overflow-y: auto;
         }
         
         .column-mapper.show {
@@ -230,6 +232,10 @@
             margin-bottom: 15px;
             color: #8b6914;
             font-size: 1.1em;
+            position: sticky;
+            top: 0;
+            background: #fffacd;
+            padding-bottom: 10px;
         }
         
         .column-mapper-grid {
@@ -255,22 +261,36 @@
             border: 1px solid #daa520;
             border-radius: 4px;
             background: white;
+            font-size: 0.9em;
         }
         
         .all-columns {
             background: #f9f9f9;
-            padding: 10px;
+            padding: 15px;
             border-radius: 4px;
             margin-bottom: 15px;
             font-size: 0.85em;
             color: #666;
-            max-height: 100px;
+            max-height: 120px;
             overflow-y: auto;
             word-break: break-word;
+            border: 1px solid #ddd;
         }
         
         .all-columns strong {
             color: #333;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .mapper-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            position: sticky;
+            bottom: 0;
+            background: #fffacd;
+            padding-top: 10px;
         }
         
         .table-wrapper {
@@ -283,7 +303,7 @@
             width: 100%;
             border-collapse: collapse;
             background: white;
-            font-size: 0.95em;
+            font-size: 0.9em;
         }
         
         table thead {
@@ -293,15 +313,17 @@
         }
         
         table th {
-            padding: 12px;
+            padding: 10px;
             text-align: left;
             border-bottom: 2px solid #ddd;
             white-space: nowrap;
+            font-size: 0.85em;
         }
         
         table td {
-            padding: 10px 12px;
+            padding: 8px 10px;
             border-bottom: 1px solid #eee;
+            font-size: 0.85em;
         }
         
         table tbody tr:hover {
@@ -329,7 +351,7 @@
             color: white;
             padding: 2px 6px;
             border-radius: 3px;
-            font-size: 0.8em;
+            font-size: 0.75em;
             margin-left: 5px;
         }
         
@@ -502,51 +524,140 @@
             
             <!-- Mapeador de Colunas -->
             <div id="columnMapper" class="column-mapper">
-                <h4><i class="fas fa-columns"></i> Mapeador de Colunas</h4>
+                <h4><i class="fas fa-columns"></i> Mapeador de Colunas - Selecione qual coluna do Excel corresponde a cada campo</h4>
+                
                 <div class="all-columns">
-                    <strong>Colunas disponíveis no Excel:</strong><br>
+                    <strong>Colunas disponíveis no Excel:</strong>
                     <span id="allColumnsList"></span>
                 </div>
+                
                 <div class="column-mapper-grid">
+                    <!-- Colunas obrigatórias -->
                     <div class="column-map-item">
-                        <label>Crédito:</label>
+                        <label><strong>CTE *</strong></label>
+                        <select id="mapCTE"></select>
+                    </div>
+                    
+                    <!-- Colunas do painel -->
+                    <div class="column-map-item">
+                        <label>Crédito</label>
                         <select id="mapCredito"></select>
                     </div>
                     <div class="column-map-item">
-                        <label>CTE:</label>
-                        <select id="mapCTE"></select>
-                    </div>
-                    <div class="column-map-item">
-                        <label>OI:</label>
+                        <label>OI</label>
                         <select id="mapOI"></select>
                     </div>
                     <div class="column-map-item">
-                        <label>Observação:</label>
+                        <label>Observação</label>
                         <select id="mapObservacao"></select>
                     </div>
                     <div class="column-map-item">
-                        <label>Responsável:</label>
+                        <label>Responsável</label>
                         <select id="mapResponsavel"></select>
                     </div>
                     <div class="column-map-item">
-                        <label>Obs:</label>
+                        <label>Obs</label>
                         <select id="mapObs"></select>
                     </div>
                     <div class="column-map-item">
-                        <label>Complemento:</label>
+                        <label>Complemento</label>
                         <select id="mapComplemento"></select>
                     </div>
                     <div class="column-map-item">
-                        <label>Última Ocorrência:</label>
+                        <label>Última Ocorrência</label>
                         <select id="mapUltimaOcorrencia"></select>
                     </div>
                     <div class="column-map-item">
-                        <label>Data Envio Base:</label>
+                        <label>Data Envio Base</label>
                         <select id="mapDataEnvioBase"></select>
                     </div>
+                    
+                    <!-- Colunas adicionais (opcional) -->
+                    <div class="column-map-item">
+                        <label>Mês</label>
+                        <select id="mapMes"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Ordem Inversa</label>
+                        <select id="mapOrdenInversa"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>SKU</label>
+                        <select id="mapSKU"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Qtde</label>
+                        <select id="mapQtde"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Loc/Exp</label>
+                        <select id="mapLocExp"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Cliente</label>
+                        <select id="mapCliente"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Cód/Transportador</label>
+                        <select id="mapCodTransportador"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Nome Transportadora</label>
+                        <select id="mapNomeTransportadora"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Tipo de Pedido</label>
+                        <select id="mapTipoPedido"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Motivo da OI</label>
+                        <select id="mapMotivoOI"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Transporte</label>
+                        <select id="mapTransporte"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>NF Whi - Eletrônica</label>
+                        <select id="mapNFWhi"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>NFD</label>
+                        <select id="mapNFD"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Valor</label>
+                        <select id="mapValor"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Motivo</label>
+                        <select id="mapMotivo"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Gestor da Carteira</label>
+                        <select id="mapGestorCarteira"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Nº da Carta</label>
+                        <select id="mapNoCarta"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Data Envio Carta</label>
+                        <select id="mapDataEnvioCarta"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Venc/Carta</label>
+                        <select id="mapVencCarta"></select>
+                    </div>
+                    <div class="column-map-item">
+                        <label>Carta ZV</label>
+                        <select id="mapCartaZV"></select>
+                    </div>
                 </div>
-                <div style="margin-top: 15px;">
+                
+                <div class="mapper-buttons">
                     <button onclick="aplicarMapeamento()"><i class="fas fa-check"></i> Aplicar Mapeamento</button>
+                    <button class="secondary" onclick="columnMapper.classList.remove('show')"><i class="fas fa-times"></i> Fechar</button>
                 </div>
             </div>
             
@@ -590,7 +701,7 @@
             <!-- Filtros -->
             <div class="filters">
                 <div class="filter-group">
-                    <label>Filtrar por Ano (Data Envio Base):</label>
+                    <label>Filtrar por Ano:</label>
                     <select id="filterYear">
                         <option value="">Todos os anos</option>
                     </select>
@@ -643,7 +754,7 @@
                     </thead>
                     <tbody id="tableBody">
                         <tr>
-                            <td colspan="9" class="no-data">Nenhum dado carregado. Faça upload do arquivo Excel ou carregue do GitHub.</td>
+                            <td colspan="9" class="no-data">Nenhum dado carregado. Faça upload do arquivo Excel.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -693,7 +804,27 @@
             obs: null,
             complemento: null,
             ultimaOcorrencia: null,
-            dataEnvioBase: null
+            dataEnvioBase: null,
+            mes: null,
+            ordenInversa: null,
+            sku: null,
+            qtde: null,
+            locExp: null,
+            cliente: null,
+            codTransportador: null,
+            nomeTransportadora: null,
+            tipoPedido: null,
+            motivoOI: null,
+            transporte: null,
+            nfWhi: null,
+            nfd: null,
+            valor: null,
+            motivo: null,
+            gestorCarteira: null,
+            noCarta: null,
+            dataEnvioCarta: null,
+            vencCarta: null,
+            cartaZV: null
         };
 
         // Elementos DOM
@@ -936,24 +1067,24 @@
             preencherMapeadorColunas();
             columnMapper.classList.add('show');
             
-            mostrarMensagem(`✓ ${colunasDisponiveis.length} coluna(s) detectada(s). Mapeie as colunas corretamente.`, 'info');
+            mostrarMensagem(`✓ ${colunasDisponiveis.length} coluna(s) detectada(s). Mapeie as colunas na caixa abaixo.`, 'info');
             mostrarLoading(false);
         }
 
         function preencherMapeadorColunas() {
             // Exibir todas as colunas
-            allColumnsList.textContent = colunasDisponiveis.join(', ');
+            allColumnsList.innerHTML = colunasDisponiveis.map((col, i) => 
+                `<strong>${col}</strong>${(i + 1) % 3 === 0 ? '<br>' : ' | '}`
+            ).join('');
 
-            // Preencher os selects com as colunas disponíveis
-            const selects = [
-                'mapCredito', 'mapCTE', 'mapOI', 'mapObservacao', 
-                'mapResponsavel', 'mapObs', 'mapComplemento', 
-                'mapUltimaOcorrencia', 'mapDataEnvioBase'
-            ];
-
-            selects.forEach(selectId => {
+            // Preencher TODOS os selects com as colunas disponíveis
+            const allSelects = Object.keys(colunasDetectadas).map(key => `map${key.charAt(0).toUpperCase() + key.slice(1)}`);
+            
+            allSelects.forEach(selectId => {
                 const select = document.getElementById(selectId);
-                select.innerHTML = '<option value="">-- Selecione --</option>';
+                if (!select) return;
+                
+                select.innerHTML = '<option value="">-- Não mapeado --</option>';
                 colunasDisponiveis.forEach(col => {
                     const option = document.createElement('option');
                     option.value = col;
@@ -961,60 +1092,21 @@
                     select.appendChild(option);
                 });
             });
-
-            // Tentar detectar automaticamente
-            detectarColunasAutomaticamente();
-        }
-
-        function detectarColunasAutomaticamente() {
-            colunasDisponiveis.forEach(col => {
-                const colLower = col.toLowerCase();
-                
-                if (colLower.includes('crédito') || colLower.includes('credito')) {
-                    document.getElementById('mapCredito').value = col;
-                }
-                if (colLower.includes('cte')) {
-                    document.getElementById('mapCTE').value = col;
-                }
-                if (colLower.includes('oi') && !colLower.includes('observação')) {
-                    document.getElementById('mapOI').value = col;
-                }
-                if (colLower.includes('observação') || colLower.includes('observacao')) {
-                    document.getElementById('mapObservacao').value = col;
-                }
-                if (colLower.includes('responsável') || colLower.includes('responsavel')) {
-                    document.getElementById('mapResponsavel').value = col;
-                }
-                if (colLower === 'obs') {
-                    document.getElementById('mapObs').value = col;
-                }
-                if (colLower.includes('complemento')) {
-                    document.getElementById('mapComplemento').value = col;
-                }
-                if ((colLower.includes('última') || colLower.includes('ultima')) && colLower.includes('ocorrência')) {
-                    document.getElementById('mapUltimaOcorrencia').value = col;
-                }
-                if (colLower.includes('data envio') || (colLower.includes('data') && colLower.includes('envio'))) {
-                    document.getElementById('mapDataEnvioBase').value = col;
-                }
-            });
         }
 
         function aplicarMapeamento() {
-            colunasDetectadas = {
-                credito: document.getElementById('mapCredito').value || null,
-                cte: document.getElementById('mapCTE').value || null,
-                oi: document.getElementById('mapOI').value || null,
-                observacao: document.getElementById('mapObservacao').value || null,
-                responsavel: document.getElementById('mapResponsavel').value || null,
-                obs: document.getElementById('mapObs').value || null,
-                complemento: document.getElementById('mapComplemento').value || null,
-                ultimaOcorrencia: document.getElementById('mapUltimaOcorrencia').value || null,
-                dataEnvioBase: document.getElementById('mapDataEnvioBase').value || null
-            };
+            // Coletar todos os mapeamentos
+            const mapKeys = Object.keys(colunasDetectadas);
+            mapKeys.forEach(key => {
+                const selectId = `map${key.charAt(0).toUpperCase() + key.slice(1)}`;
+                const select = document.getElementById(selectId);
+                if (select) {
+                    colunasDetectadas[key] = select.value || null;
+                }
+            });
 
             if (!colunasDetectadas.cte) {
-                mostrarMensagem('Você deve selecionar a coluna CTE!', 'error');
+                mostrarMensagem('⚠️ Você deve selecionar a coluna CTE!', 'error');
                 return;
             }
 
