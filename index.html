@@ -426,7 +426,6 @@
           <th>Crédito</th>
           <th>CTE</th>
           <th>OI</th>
-          <th>Observação</th>
           <th>Responsável</th>
           <th>NF Whi - Eletrônica</th>
           <th>complemento</th>
@@ -436,7 +435,7 @@
       </thead>
       <tbody id="tableBody">
         <tr>
-          <td colspan="9" class="no-data">Nenhum dado carregado.</td>
+          <td colspan="8" class="no-data">Nenhum dado carregado.</td>
         </tr>
       </tbody>
     </table>
@@ -618,7 +617,6 @@ function mapearcolunas() {
     Credito: achar(['Credito', 'Crédito']),
     CTE: achar(['CTE']),
     OI: achar(['OI']),
-    Observação: achar(['Observação', 'Observacao']),
     Responsável: achar(['Responsável', 'Responsavel']),
     'NF Whi': achar(['NF Whi - Eletrônica', 'NF Whi']),
     complemento: achar(['complemento']),
@@ -653,7 +651,7 @@ function renderizarTabela() {
   tableBody.innerHTML = '';
   
   if (!dados.length) {
-    tableBody.innerHTML = '<tr><td colspan="9" class="no-data">Nenhum dado para exibir.</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="8" class="no-data">Nenhum dado para exibir.</td></tr>';
     return;
   }
   
@@ -664,7 +662,6 @@ function renderizarTabela() {
       { col: 'Credito', label: 'Crédito' },
       { col: 'CTE', label: 'CTE' },
       { col: 'OI', label: 'OI' },
-      { col: 'Observação', label: 'Observação' },
       { col: 'Responsável', label: 'Responsável' },
       { col: 'NF Whi', label: 'NF Whi - Eletrônica' },
       { col: 'complemento', label: 'complemento' },
