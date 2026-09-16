@@ -409,6 +409,9 @@
         <option value="com">Com Comprovante</option>
         <option value="sem">Sem Comprovante</option>
       </select>
+      <select id="filterResponsavel" onchange="aplicarFiltrosAutomatico()">
+        <option value="">Filtrar por Responsável</option>
+      </select>
       <button class="secondary" onclick="limparFiltros()"><i class="fas fa-redo"></i> Limpar Filtros</button>
     </div>
 
@@ -420,7 +423,7 @@
           <th>OI</th>
           <th>Observação</th>
           <th>Responsável</th>
-          <th>obs</th>
+          <th>NF Whi - Eletrônica</th>
           <th>complemento</th>
           <th>última ocorrência</th>
           <th>Comprovante</th>
@@ -580,6 +583,7 @@ function processarArquivoExcel(arquivo) {
       dados = linhas;
       dadosOriginais = JSON.parse(JSON.stringify(dados));
       mapearcolunas();
+      preencherFiltros();
       renderizarTabela();
       atualizarEstatisticas();
       mostrarLoading('', false);
@@ -611,12 +615,32 @@ function mapearcolunas() {
     OI: achar(['OI']),
     Observação: achar(['Observação', 'Observacao']),
     Responsável: achar(['Responsável', 'Responsavel']),
-    obs: achar(['obs']),
+    'NF Whi': achar(['NF Whi - Eletrônica', 'NF Whi']),
     complemento: achar(['complemento']),
     'ultima ocorrencia': achar(['ultima ocorrencia', 'ultima ocorrência']),
     'Data Envio Base': achar(['Data Envio Base']),
     Valor: achar(['Valor'])
   };
+}
+
+function preencherFiltros() {
+  const responsavelSet = new Set();
+  
+  dadosOriginais.forEach(linha => {
+    const responsavel = linha[colunasExcel['Responsável']];
+    if (responsavel && String(responsavel).toLowerCase() !== 'nan') {
+      responsavelSet.add(String(responsavel).trim());
+    }
+  });
+  
+  const selectResponsavel = document.getElementById('filterResponsavel');
+  selectResponsavel.innerHTML = '<option value="">Filtrar por Responsável</option>';
+  Array.from(responsavelSet).sort().forEach(resp => {
+    const option = document.createElement('option');
+    option.value = resp;
+    option.textContent = resp;
+    selectResponsavel.appendChild(option);
+  });
 }
 
 function renderizarTabela() {
@@ -631,7 +655,7 @@ function renderizarTabela() {
   dados.forEach(linha => {
     const tr = document.createElement('tr');
     
-    ['Credito', 'CTE', 'OI', 'Observação', 'Responsável', 'obs', 'complemento', 'ultima ocorrencia'].forEach(coluna => {
+    ['Credito', 'CTE', 'OI', 'Observação', 'Responsável', 'NF Whi', 'complemento', 'ultima ocorrencia'].forEach(coluna => {
       const td = document.createElement('td');
       const colunaReal = colunasExcel[coluna];
       let valor = colunaReal ? linha[colunaReal] : '';
@@ -692,6 +716,7 @@ function atualizarEstatisticas() {
 function aplicarFiltrosAutomatico() {
   const creditoFiltro = document.getElementById('filterCredito').value;
   const comprovanteFiltro = document.getElementById('filterComprovante').value;
+  const responsavelFiltro = document.getElementById('filterResponsavel').value;
   
   dados = dadosOriginais.filter(linha => {
     let ok = true;
@@ -712,6 +737,11 @@ function aplicarFiltrosAutomatico() {
       }
     }
     
+    if (responsavelFiltro) {
+      const responsavel = String(linha[colunasExcel['Responsável']] || '').trim();
+      ok = ok && responsavel === responsavelFiltro;
+    }
+    
     return ok;
   });
   
@@ -722,6 +752,7 @@ function aplicarFiltrosAutomatico() {
 function limparFiltros() {
   document.getElementById('filterCredito').value = '';
   document.getElementById('filterComprovante').value = '';
+  document.getElementById('filterResponsavel').value = '';
   dados = JSON.parse(JSON.stringify(dadosOriginais));
   renderizarTabela();
   atualizarEstatisticas();
