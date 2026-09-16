@@ -617,11 +617,11 @@ function mapearcolunas() {
     Credito: achar(['Credito', 'Crédito']),
     CTE: achar(['CTE']),
     OI: achar(['OI']),
-    Responsável: achar(['Responsável', 'Responsavel']),
-    'NF Whi': achar(['NF Whi - Eletrônica', 'NF Whi']),
+    Responsavel: achar(['Responsável', 'Responsavel']),
+    NFWhi: achar(['NF Whi - Eletrônica', 'NF Whi']),
     complemento: achar(['complemento']),
-    'ultima ocorrencia': achar(['ultima ocorrencia', 'ultima ocorrência']),
-    'Data Envio Base': achar(['Data Envio Base']),
+    ultimaocorrencia: achar(['ultima ocorrencia', 'ultima ocorrência']),
+    DataEnvioBase: achar(['Data Envio Base']),
     Valor: achar(['Valor'])
   };
 }
@@ -630,7 +630,7 @@ function preencherFiltros() {
   const responsavelSet = new Set();
   
   dadosOriginais.forEach(linha => {
-    const responsavel = String(linha[colunasExcel['Responsável']] || '').trim();
+    const responsavel = String(linha[colunasExcel['Responsavel']] || '').trim();
     if (responsavel && responsavel.toLowerCase() !== 'nan') {
       responsavelSet.add(responsavel);
     }
@@ -658,25 +658,42 @@ function renderizarTabela() {
   dados.forEach(linha => {
     const tr = document.createElement('tr');
     
-    const colunasExibir = [
-      { col: 'Credito', label: 'Crédito' },
-      { col: 'CTE', label: 'CTE' },
-      { col: 'OI', label: 'OI' },
-      { col: 'Responsável', label: 'Responsável' },
-      { col: 'NF Whi', label: 'NF Whi - Eletrônica' },
-      { col: 'complemento', label: 'complemento' },
-      { col: 'ultima ocorrencia', label: 'última ocorrência' }
-    ];
+    // Crédito
+    const tdCredito = document.createElement('td');
+    tdCredito.textContent = String(linha[colunasExcel['Credito']] || '').trim();
+    tr.appendChild(tdCredito);
     
-    colunasExibir.forEach(item => {
-      const td = document.createElement('td');
-      const colunaReal = colunasExcel[item.col];
-      let valor = colunaReal ? String(linha[colunaReal] || '') : '';
-      if (valor.toLowerCase() === 'nan' || valor === '') valor = '';
-      td.textContent = valor;
-      tr.appendChild(td);
-    });
+    // CTE
+    const tdCTE = document.createElement('td');
+    tdCTE.textContent = String(linha[colunasExcel['CTE']] || '').trim();
+    tr.appendChild(tdCTE);
     
+    // OI
+    const tdOI = document.createElement('td');
+    tdOI.textContent = String(linha[colunasExcel['OI']] || '').trim();
+    tr.appendChild(tdOI);
+    
+    // Responsável
+    const tdResponsavel = document.createElement('td');
+    tdResponsavel.textContent = String(linha[colunasExcel['Responsavel']] || '').trim();
+    tr.appendChild(tdResponsavel);
+    
+    // NF Whi - Eletrônica
+    const tdNFWhi = document.createElement('td');
+    tdNFWhi.textContent = String(linha[colunasExcel['NFWhi']] || '').trim();
+    tr.appendChild(tdNFWhi);
+    
+    // complemento
+    const tdComplemento = document.createElement('td');
+    tdComplemento.textContent = String(linha[colunasExcel['complemento']] || '').trim();
+    tr.appendChild(tdComplemento);
+    
+    // última ocorrência
+    const tdUltimaOcorrencia = document.createElement('td');
+    tdUltimaOcorrencia.textContent = String(linha[colunasExcel['ultimaocorrencia']] || '').trim();
+    tr.appendChild(tdUltimaOcorrencia);
+    
+    // Comprovante
     const tdComprovante = document.createElement('td');
     const cte = String(linha[colunasExcel['CTE']] || '');
     if (cte && cte.toLowerCase() !== 'nan' && imagens[cte] && imagens[cte].length) {
@@ -751,7 +768,7 @@ function aplicarFiltrosAutomatico() {
     }
     
     if (responsavelFiltro) {
-      const responsavel = String(linha[colunasExcel['Responsável']] || '').trim();
+      const responsavel = String(linha[colunasExcel['Responsavel']] || '').trim();
       ok = ok && responsavel === responsavelFiltro;
     }
     
