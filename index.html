@@ -13,6 +13,7 @@
     .header h1 { font-size: 28px; font-weight: 600; }
     .content { padding: 30px; }
     .info-box { background: #d4edda; border: 1px solid #28a745; border-radius: 6px; padding: 15px; margin-bottom: 20px; font-size: 14px; color: #155724; }
+    .debug-box { background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 15px; margin-bottom: 20px; font-size: 12px; color: #856404; max-height: 150px; overflow-y: auto; font-family: monospace; }
     .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
     .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
     .stat-card h3 { font-size: 14px; font-weight: 500; margin-bottom: 10px; opacity: 0.9; }
@@ -75,6 +76,11 @@
       
       <div class="info-box">
         <strong>✓ Dados Carregados:</strong> jonathanbueno-jmb/whp | Excel: consultacredito.xlsx | Pasta: /imagens/ | Ramo: main
+      </div>
+
+      <div id="debugBox" class="debug-box" style="display:none;">
+        <strong>Debug - Colunas detectadas:</strong><br>
+        <div id="debugContent"></div>
       </div>
 
       <div class="stats">
@@ -197,6 +203,7 @@
     let imagens = {};
     let imagensModal = [];
     let indexImagemAtual = 0;
+    let colunasExcel = {}; // Mapeamento de colunas
 
     function mostrarLoading(texto = 'Processando...', mostrar = true) {
       const loading = document.getElementById('loading');
@@ -218,6 +225,27 @@
       msgBox.textContent = texto;
       msgBox.className = 'message show ' + tipo;
       setTimeout(() => msgBox.classList.remove('show'), 5000);
+    }
+
+    function normalizarNomeColuna(nome) {
+      if (!nome) return '';
+      return nome.trim().toLowerCase();
+    }
+
+    function encontrarColuna(dados, possiveisNomes) {
+      if (!dados || dados.length === 0) return null;
+      
+      const primeiraLinha = dados[0];
+      const colunasDisponiveis = Object.keys(primeiraLinha);
+
+      for (const possivel of possiveisNomes) {
+        const normalizado = normalizarNomeColuna(possivel);
+        const encontrada = colunasDisponiveis.find(col => 
+          normalizarNomeColuna(col) === normalizado
+        );
+        if (encontrada) return encontrada;
+      }
+      return null;
     }
 
     function extrairCTE(nomeArquivo) {
@@ -283,28 +311,61 @@
           const dados_arquivo = e.target.result;
           const workbook = XLSX.read(dados_arquivo, { type: 'array' });
           const sheet = workbook.Sheets[workbook.SheetNames[0]];
-          const csv = XLSX.utils.sheet_to_csv(sheet);
           
-          Papa.parse(csv, {
-            header: true,
-            skipEmptyLines: true,
-            complete: function(resultados) {
-              dados = resultados.data.filter(row => Object.values(row).some(v => v));
-              dadosOriginais = JSON.parse(JSON.stringify(dados));
+          // Usar sheet_to_json para melhor detecção de colunas
+          const jsonData = XLSX.utils.sheet_to_json(sheet);
+          
+          dados = jsonData.filter(row => Object.values(row).some(v => v));
+          dadosOriginais = JSON.parse(JSON.stringify(dados));
 
-              preencherFiltros();
-              renderizarTabela();
-              atualizarEstatisticas();
-              mostrarLoading('', false);
-              mostrarMensagem('Excel carregado com sucesso!', 'success');
-            }
-          });
+          // Mostrar debug
+          if (dados.length > 0) {
+            const colunasDetectadas = Object.keys(dados[0]);
+            console.log('Colunas detectadas:', colunasDetectadas);
+            mostrarDebug(colunasDetectadas);
+          }
+
+          // Mapear colunas
+          mapearcolunas();
+
+          preencherFiltros();
+          renderizarTabela();
+          atualizarEstatisticas();
+          mostrarLoading('', false);
+          mostrarMensagem('Excel carregado com sucesso!', 'success');
         } catch (erro) {
           mostrarLoading('', false);
+          console.error('Erro:', erro);
           mostrarMensagem('Erro ao processar Excel: ' + erro.message, 'error');
         }
       };
       leitor.readAsArrayBuffer(file);
+    }
+
+    function mapearcolunas() {
+      if (dados.length === 0) return;
+
+      // Mapear colunas esperadas para as colunas reais do Excel
+      colunasExcel = {
+        'Credito': encontrarColuna(dados, ['Credito', 'Crédito', 'credito']),
+        'CTE': encontrarColuna(dados, ['CTE', 'cte']),
+        'OI': encontrarColuna(dados, ['OI', 'oi']),
+        'Observação': encontrarColuna(dados, ['Observação', 'Observacao', 'observação', 'observacao']),
+        'Responsável': encontrarColuna(dados, ['Responsável', 'Responsavel', 'responsável', 'responsavel']),
+        'obs': encontrarColuna(dados, ['obs', 'Obs']),
+        'complemento': encontrarColuna(dados, ['complemento', 'Complemento']),
+        'ultima ocorrencia': encontrarColuna(dados, ['ultima ocorrencia', 'ultima ocorrência', 'Ultima ocorrencia', 'Ultima ocorrência']),
+        'Data Envio Base': encontrarColuna(dados, ['Data Envio Base', 'data envio base'])
+      };
+
+      console.log('Mapeamento de colunas:', colunasExcel);
+    }
+
+    function mostrarDebug(colunas) {
+      const debugBox = document.getElementById('debugBox');
+      const debugContent = document.getElementById('debugContent');
+      debugBox.style.display = 'block';
+      debugContent.innerHTML = '<br>' + colunas.map((c, i) => `${i + 1}. "${c}"`).join('<br>');
     }
 
     function preencherFiltros() {
@@ -313,13 +374,17 @@
       const responsaveis = new Set();
 
       dados.forEach(linha => {
-        // Extrair ano de "Data Envio Base"
-        if (linha['Data Envio Base']) {
-          const ano = new Date(linha['Data Envio Base']).getFullYear();
+        const colDataEnvio = colunasExcel['Data Envio Base'];
+        if (colDataEnvio && linha[colDataEnvio]) {
+          const ano = new Date(linha[colDataEnvio]).getFullYear();
           if (!isNaN(ano)) anos.add(ano);
         }
-        if (linha['CTE']) ctes.add(linha['CTE']);
-        if (linha['Responsável']) responsaveis.add(linha['Responsável']);
+        
+        const colCTE = colunasExcel['CTE'];
+        if (colCTE && linha[colCTE]) ctes.add(linha[colCTE]);
+        
+        const colResp = colunasExcel['Responsável'];
+        if (colResp && linha[colResp]) responsaveis.add(linha[colResp]);
       });
 
       const selectAno = document.getElementById('filterYear');
@@ -363,18 +428,21 @@
       dados.forEach((linha, idx) => {
         const tr = document.createElement('tr');
 
-        // Colunas solicitadas
-        const colunas = ['Credito', 'CTE', 'OI', 'Observação', 'Responsável', 'obs', 'complemento', 'ultima ocorrencia'];
+        const colunasMostracao = ['Credito', 'CTE', 'OI', 'Observação', 'Responsável', 'obs', 'complemento', 'ultima ocorrencia'];
 
-        colunas.forEach(col => {
+        colunasMostracao.forEach(col => {
           const td = document.createElement('td');
-          td.textContent = linha[col] || '';
+          const colReal = colunasExcel[col];
+          const valor = colReal ? linha[colReal] : '';
+          td.textContent = valor || '';
           tr.appendChild(td);
         });
 
         // Coluna Comprovante
         const tdComprovante = document.createElement('td');
-        const cte = linha['CTE'];
+        const colCTE = colunasExcel['CTE'];
+        const cte = colCTE ? linha[colCTE] : null;
+        
         if (cte && imagens[cte]) {
           const badge = document.createElement('span');
           badge.className = 'comprovante-badge';
@@ -396,8 +464,9 @@
       let totalImagens = 0;
       let registrosComImagem = 0;
 
+      const colCTE = colunasExcel['CTE'];
       dados.forEach(linha => {
-        const cte = linha['CTE'];
+        const cte = colCTE ? linha[colCTE] : null;
         if (cte && imagens[cte]) {
           ctesComImagem.add(cte);
           totalImagens += imagens[cte].length;
@@ -421,17 +490,20 @@
         let passaCTE = true;
         let passaResp = true;
 
-        if (anoSelecionado) {
-          const ano = new Date(linha['Data Envio Base']).getFullYear();
+        const colDataEnvio = colunasExcel['Data Envio Base'];
+        if (anoSelecionado && colDataEnvio) {
+          const ano = new Date(linha[colDataEnvio]).getFullYear();
           passaAno = ano == anoSelecionado;
         }
 
-        if (cteSelecionado) {
-          passaCTE = linha['CTE'] === cteSelecionado;
+        const colCTE = colunasExcel['CTE'];
+        if (cteSelecionado && colCTE) {
+          passaCTE = linha[colCTE] === cteSelecionado;
         }
 
-        if (respSelecionado) {
-          passaResp = linha['Responsável'] === respSelecionado;
+        const colResp = colunasExcel['Responsável'];
+        if (respSelecionado && colResp) {
+          passaResp = linha[colResp] === respSelecionado;
         }
 
         return passaAno && passaCTE && passaResp;
