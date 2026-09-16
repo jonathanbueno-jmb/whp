@@ -264,6 +264,9 @@
             margin-bottom: 15px;
             font-size: 0.85em;
             color: #666;
+            max-height: 100px;
+            overflow-y: auto;
+            word-break: break-word;
         }
         
         .all-columns strong {
@@ -701,7 +704,7 @@
         const messageBox = document.getElementById('messageBox');
         const autoLoadButtons = document.getElementById('autoLoadButtons');
         const columnMapper = document.getElementById('columnMapper');
-        const allColumnsList = document.getElementById('allColumnsLis t');
+        const allColumnsList = document.getElementById('allColumnsList');
         const loading = document.getElementById('loading');
         const loadingText = document.getElementById('loadingText');
         const progressFill = document.getElementById('progressFill');
