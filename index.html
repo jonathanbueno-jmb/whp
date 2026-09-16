@@ -8,12 +8,10 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; padding: 20px; }
-    .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
+    .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
     .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
     .header h1 { font-size: 28px; font-weight: 600; }
     .content { padding: 30px; }
-    .info-box { background: #d4edda; border: 1px solid #28a745; border-radius: 6px; padding: 15px; margin-bottom: 20px; font-size: 14px; color: #155724; }
-    .debug-box { background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 15px; margin-bottom: 20px; font-size: 12px; color: #856404; max-height: 150px; overflow-y: auto; font-family: monospace; }
     .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
     .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
     .stat-card h3 { font-size: 14px; font-weight: 500; margin-bottom: 10px; opacity: 0.9; }
@@ -42,14 +40,14 @@
     .progress-bar { width: 200px; height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; overflow: hidden; }
     .progress-fill { height: 100%; background: white; width: 0%; transition: width 0.3s; }
     .table-wrapper { overflow-x: auto; margin-bottom: 30px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
     thead { background: #667eea; color: white; sticky: top: 0; }
-    th { padding: 12px; text-align: left; font-weight: 600; }
-    td { padding: 12px; border-bottom: 1px solid #eee; }
+    th { padding: 10px; text-align: left; font-weight: 600; }
+    td { padding: 10px; border-bottom: 1px solid #eee; }
     tbody tr:hover { background: #f9f9ff; }
     .no-data { text-align: center; color: #999; padding: 40px; }
-    .comprovante-badge { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 12px; border-radius: 20px; font-weight: 600; cursor: pointer; display: inline-block; }
-    .comprovante-badge:hover { opacity: 0.85; }
+    .comprovante-badge { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 6px 12px; border-radius: 20px; font-weight: 600; cursor: pointer; display: inline-block; font-size: 11px; }
+    .comprovante-badge:hover { opacity: 0.85; transform: scale(1.05); }
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 2000; }
     .modal.active { display: flex; }
     .modal-content { background: white; border-radius: 10px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; }
@@ -73,15 +71,6 @@
     </div>
     <div class="content">
       <div id="messageBox" class="message"></div>
-      
-      <div class="info-box">
-        <strong>✓ Dados Carregados:</strong> jonathanbueno-jmb/whp | Excel: consultacredito.xlsx | Pasta: /imagens/ | Ramo: main
-      </div>
-
-      <div id="debugBox" class="debug-box" style="display:none;">
-        <strong>Debug - Colunas detectadas:</strong><br>
-        <div id="debugContent"></div>
-      </div>
 
       <div class="stats">
         <div class="stat-card">
@@ -203,7 +192,7 @@
     let imagens = {};
     let imagensModal = [];
     let indexImagemAtual = 0;
-    let colunasExcel = {}; // Mapeamento de colunas
+    let colunasExcel = {};
 
     function mostrarLoading(texto = 'Processando...', mostrar = true) {
       const loading = document.getElementById('loading');
@@ -225,27 +214,6 @@
       msgBox.textContent = texto;
       msgBox.className = 'message show ' + tipo;
       setTimeout(() => msgBox.classList.remove('show'), 5000);
-    }
-
-    function normalizarNomeColuna(nome) {
-      if (!nome) return '';
-      return nome.trim().toLowerCase();
-    }
-
-    function encontrarColuna(dados, possiveisNomes) {
-      if (!dados || dados.length === 0) return null;
-      
-      const primeiraLinha = dados[0];
-      const colunasDisponiveis = Object.keys(primeiraLinha);
-
-      for (const possivel of possiveisNomes) {
-        const normalizado = normalizarNomeColuna(possivel);
-        const encontrada = colunasDisponiveis.find(col => 
-          normalizarNomeColuna(col) === normalizado
-        );
-        if (encontrada) return encontrada;
-      }
-      return null;
     }
 
     function extrairCTE(nomeArquivo) {
@@ -278,7 +246,7 @@
         const arquivos = await response.json();
         
         imagens = {};
-        let total = arquivos.length;
+        let total = arquivos.filter(a => /\.(jpg|jpeg|png|gif|webp)$/i.test(a.name)).length;
         let processados = 0;
 
         for (const arquivo of arquivos) {
@@ -289,15 +257,15 @@
               if (!imagens[cte]) imagens[cte] = [];
               imagens[cte].push({ url: urlRaw, nome: arquivo.name });
             }
+            processados++;
+            atualizarProgresso((processados / total) * 100);
           }
-          processados++;
-          atualizarProgresso((processados / total) * 100);
         }
 
         renderizarTabela();
         atualizarEstatisticas();
         mostrarLoading('', false);
-        mostrarMensagem(`${processados} imagens carregadas com sucesso!`, 'success');
+        mostrarMensagem(`${processados} imagens carregadas!`, 'success');
       } catch (erro) {
         mostrarLoading('', false);
         mostrarMensagem('Erro ao carregar imagens: ' + erro.message, 'error');
@@ -312,22 +280,39 @@
           const workbook = XLSX.read(dados_arquivo, { type: 'array' });
           const sheet = workbook.Sheets[workbook.SheetNames[0]];
           
-          // Usar sheet_to_json para melhor detecção de colunas
-          const jsonData = XLSX.utils.sheet_to_json(sheet);
-          
-          dados = jsonData.filter(row => Object.values(row).some(v => v));
-          dadosOriginais = JSON.parse(JSON.stringify(dados));
+          // Ler como raw array para preservar espaços
+          const range = XLSX.utils.decode_range(sheet['!ref']);
+          let headers = [];
+          let rows = [];
 
-          // Mostrar debug
-          if (dados.length > 0) {
-            const colunasDetectadas = Object.keys(dados[0]);
-            console.log('Colunas detectadas:', colunasDetectadas);
-            mostrarDebug(colunasDetectadas);
+          // Extrair headers (primeira linha)
+          for (let C = range.s.c; C <= range.e.c; ++C) {
+            const cellAddress = XLSX.utils.encode_col(C) + '1';
+            const cell = sheet[cellAddress];
+            headers.push(cell ? cell.v : '');
           }
 
-          // Mapear colunas
-          mapearcolunas();
+          // Extrair dados (linhas 2+)
+          for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+            const row = {};
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+              const cellAddress = XLSX.utils.encode_col(C) + (R + 1);
+              const cell = sheet[cellAddress];
+              row[headers[C]] = cell ? cell.v : '';
+            }
+            // Filtrar linhas vazias
+            if (Object.values(row).some(v => v)) {
+              rows.push(row);
+            }
+          }
 
+          dados = rows;
+          dadosOriginais = JSON.parse(JSON.stringify(dados));
+
+          console.log('Headers detectados:', headers);
+          console.log('Primeira linha:', dados[0]);
+
+          mapearcolunas();
           preencherFiltros();
           renderizarTabela();
           atualizarEstatisticas();
@@ -345,27 +330,33 @@
     function mapearcolunas() {
       if (dados.length === 0) return;
 
-      // Mapear colunas esperadas para as colunas reais do Excel
+      const primeiraLinha = dados[0];
+      const colunasDisp = Object.keys(primeiraLinha);
+
+      // Função para buscar coluna ignorando espaços
+      function acharColuna(nomes) {
+        for (const nome of nomes) {
+          const encontrada = colunasDisp.find(col => 
+            col.trim().toLowerCase() === nome.trim().toLowerCase()
+          );
+          if (encontrada) return encontrada;
+        }
+        return null;
+      }
+
       colunasExcel = {
-        'Credito': encontrarColuna(dados, ['Credito', 'Crédito', 'credito']),
-        'CTE': encontrarColuna(dados, ['CTE', 'cte']),
-        'OI': encontrarColuna(dados, ['OI', 'oi']),
-        'Observação': encontrarColuna(dados, ['Observação', 'Observacao', 'observação', 'observacao']),
-        'Responsável': encontrarColuna(dados, ['Responsável', 'Responsavel', 'responsável', 'responsavel']),
-        'obs': encontrarColuna(dados, ['obs', 'Obs']),
-        'complemento': encontrarColuna(dados, ['complemento', 'Complemento']),
-        'ultima ocorrencia': encontrarColuna(dados, ['ultima ocorrencia', 'ultima ocorrência', 'Ultima ocorrencia', 'Ultima ocorrência']),
-        'Data Envio Base': encontrarColuna(dados, ['Data Envio Base', 'data envio base'])
+        'Credito': acharColuna(['Credito', 'Crédito']),
+        'CTE': acharColuna(['CTE']),
+        'OI': acharColuna(['OI']),
+        'Observação': acharColuna(['Observação', 'Observacao']),
+        'Responsável': acharColuna(['Responsável', 'Responsavel']),
+        'obs': acharColuna(['obs']),
+        'complemento': acharColuna(['complemento']),
+        'ultima ocorrencia': acharColuna(['ultima ocorrencia', 'ultima ocorrência']),
+        'Data Envio Base': acharColuna(['Data Envio Base'])
       };
 
-      console.log('Mapeamento de colunas:', colunasExcel);
-    }
-
-    function mostrarDebug(colunas) {
-      const debugBox = document.getElementById('debugBox');
-      const debugContent = document.getElementById('debugContent');
-      debugBox.style.display = 'block';
-      debugContent.innerHTML = '<br>' + colunas.map((c, i) => `${i + 1}. "${c}"`).join('<br>');
+      console.log('Mapeamento:', colunasExcel);
     }
 
     function preencherFiltros() {
@@ -376,15 +367,21 @@
       dados.forEach(linha => {
         const colDataEnvio = colunasExcel['Data Envio Base'];
         if (colDataEnvio && linha[colDataEnvio]) {
-          const ano = new Date(linha[colDataEnvio]).getFullYear();
-          if (!isNaN(ano)) anos.add(ano);
+          try {
+            const ano = new Date(linha[colDataEnvio]).getFullYear();
+            if (!isNaN(ano)) anos.add(ano);
+          } catch (e) {}
         }
         
         const colCTE = colunasExcel['CTE'];
-        if (colCTE && linha[colCTE]) ctes.add(linha[colCTE]);
+        if (colCTE && linha[colCTE] && String(linha[colCTE]).toLowerCase() !== 'nan') {
+          ctes.add(linha[colCTE]);
+        }
         
         const colResp = colunasExcel['Responsável'];
-        if (colResp && linha[colResp]) responsaveis.add(linha[colResp]);
+        if (colResp && linha[colResp] && String(linha[colResp]).toLowerCase() !== 'nan') {
+          responsaveis.add(linha[colResp]);
+        }
       });
 
       const selectAno = document.getElementById('filterYear');
@@ -425,15 +422,20 @@
         return;
       }
 
-      dados.forEach((linha, idx) => {
+      dados.forEach((linha) => {
         const tr = document.createElement('tr');
 
-        const colunasMostracao = ['Credito', 'CTE', 'OI', 'Observação', 'Responsável', 'obs', 'complemento', 'ultima ocorrencia'];
+        // Colunas a mostrar
+        const colunasDisplayar = ['Credito', 'CTE', 'OI', 'Observação', 'Responsável', 'obs', 'complemento', 'ultima ocorrencia'];
 
-        colunasMostracao.forEach(col => {
+        colunasDisplayar.forEach(col => {
           const td = document.createElement('td');
           const colReal = colunasExcel[col];
-          const valor = colReal ? linha[colReal] : '';
+          let valor = colReal ? linha[colReal] : '';
+          
+          // Converter NaN em vazio
+          if (valor && String(valor).toLowerCase() === 'nan') valor = '';
+          
           td.textContent = valor || '';
           tr.appendChild(td);
         });
@@ -443,14 +445,20 @@
         const colCTE = colunasExcel['CTE'];
         const cte = colCTE ? linha[colCTE] : null;
         
-        if (cte && imagens[cte]) {
+        if (cte && String(cte).toLowerCase() !== 'nan' && imagens[cte] && imagens[cte].length > 0) {
           const badge = document.createElement('span');
           badge.className = 'comprovante-badge';
           badge.textContent = `${imagens[cte].length} imagem(ns)`;
-          badge.onclick = () => abrirModal(cte);
+          badge.style.cursor = 'pointer';
+          badge.onclick = (e) => {
+            e.preventDefault();
+            abrirModal(cte);
+          };
           tdComprovante.appendChild(badge);
         } else {
           tdComprovante.textContent = 'Sem comprovante';
+          tdComprovante.style.color = '#999';
+          tdComprovante.style.fontSize = '11px';
         }
         tr.appendChild(tdComprovante);
 
@@ -467,7 +475,7 @@
       const colCTE = colunasExcel['CTE'];
       dados.forEach(linha => {
         const cte = colCTE ? linha[colCTE] : null;
-        if (cte && imagens[cte]) {
+        if (cte && String(cte).toLowerCase() !== 'nan' && imagens[cte]) {
           ctesComImagem.add(cte);
           totalImagens += imagens[cte].length;
           registrosComImagem++;
@@ -492,18 +500,20 @@
 
         const colDataEnvio = colunasExcel['Data Envio Base'];
         if (anoSelecionado && colDataEnvio) {
-          const ano = new Date(linha[colDataEnvio]).getFullYear();
-          passaAno = ano == anoSelecionado;
+          try {
+            const ano = new Date(linha[colDataEnvio]).getFullYear();
+            passaAno = ano == anoSelecionado;
+          } catch (e) { passaAno = false; }
         }
 
         const colCTE = colunasExcel['CTE'];
         if (cteSelecionado && colCTE) {
-          passaCTE = linha[colCTE] === cteSelecionado;
+          passaCTE = String(linha[colCTE]) === cteSelecionado;
         }
 
         const colResp = colunasExcel['Responsável'];
         if (respSelecionado && colResp) {
-          passaResp = linha[colResp] === respSelecionado;
+          passaResp = String(linha[colResp]) === respSelecionado;
         }
 
         return passaAno && passaCTE && passaResp;
@@ -575,15 +585,17 @@
       }
     });
 
+    ['dragover', 'dragleave', 'drop'].forEach(evt => {
+      document.getElementById('excelUploadBox').addEventListener(evt, (e) => e.preventDefault());
+    });
+
     document.getElementById('excelUploadBox').addEventListener('dragover', (e) => {
-      e.preventDefault();
       e.currentTarget.style.background = '#f0f4ff';
     });
     document.getElementById('excelUploadBox').addEventListener('dragleave', (e) => {
       e.currentTarget.style.background = '#f9f9ff';
     });
     document.getElementById('excelUploadBox').addEventListener('drop', (e) => {
-      e.preventDefault();
       e.currentTarget.style.background = '#f9f9ff';
       if (e.dataTransfer.files.length > 0) {
         mostrarLoading('Processando Excel...');
@@ -617,8 +629,14 @@
     });
 
     function processarImagensLocais(files) {
-      let total = files.length;
+      let total = Array.from(files).filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name)).length;
       let processados = 0;
+
+      if (total === 0) {
+        mostrarLoading('', false);
+        mostrarMensagem('Nenhuma imagem válida encontrada', 'error');
+        return;
+      }
 
       Array.from(files).forEach(file => {
         if (/\.(jpg|jpeg|png|gif|webp)$/i.test(file.name)) {
@@ -641,11 +659,6 @@
           }
         }
       });
-
-      if (total === 0) {
-        mostrarLoading('', false);
-        mostrarMensagem('Nenhuma imagem válida encontrada', 'error');
-      }
     }
 
     document.getElementById('imageModal').addEventListener('click', (e) => {
