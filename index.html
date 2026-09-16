@@ -151,6 +151,7 @@
       cursor: pointer;
       background: #fff;
       color: #333;
+      min-width: 180px;
     }
     .filters select:focus {
       outline: none;
@@ -231,15 +232,19 @@
       border-collapse: collapse;
       font-size: 12px;
       margin-top: 20px;
+      overflow-x: auto;
     }
     thead {
       background: #667eea;
       color: #fff;
+      position: sticky;
+      top: 0;
     }
     th {
       padding: 15px;
       text-align: left;
       font-weight: 600;
+      white-space: nowrap;
     }
     td {
       padding: 12px 15px;
@@ -400,9 +405,9 @@
     <div class="filters">
       <select id="filterCredito" onchange="aplicarFiltrosAutomatico()">
         <option value="">Filtrar por Crédito</option>
-        <option value="Sim">Sim</option>
-        <option value="Gestão">Gestão</option>
-        <option value="Reversa">Reversa</option>
+        <option value="sim">Sim</option>
+        <option value="gestão">Gestão</option>
+        <option value="reversa">Reversa</option>
       </select>
       <select id="filterComprovante" onchange="aplicarFiltrosAutomatico()">
         <option value="">Filtrar por Comprovante</option>
@@ -627,9 +632,9 @@ function preencherFiltros() {
   const responsavelSet = new Set();
   
   dadosOriginais.forEach(linha => {
-    const responsavel = linha[colunasExcel['Responsável']];
-    if (responsavel && String(responsavel).toLowerCase() !== 'nan') {
-      responsavelSet.add(String(responsavel).trim());
+    const responsavel = String(linha[colunasExcel['Responsável']] || '').trim();
+    if (responsavel && responsavel.toLowerCase() !== 'nan') {
+      responsavelSet.add(responsavel);
     }
   });
   
@@ -655,18 +660,29 @@ function renderizarTabela() {
   dados.forEach(linha => {
     const tr = document.createElement('tr');
     
-    ['Credito', 'CTE', 'OI', 'Observação', 'Responsável', 'NF Whi', 'complemento', 'ultima ocorrencia'].forEach(coluna => {
+    const colunasExibir = [
+      { col: 'Credito', label: 'Crédito' },
+      { col: 'CTE', label: 'CTE' },
+      { col: 'OI', label: 'OI' },
+      { col: 'Observação', label: 'Observação' },
+      { col: 'Responsável', label: 'Responsável' },
+      { col: 'NF Whi', label: 'NF Whi - Eletrônica' },
+      { col: 'complemento', label: 'complemento' },
+      { col: 'ultima ocorrencia', label: 'última ocorrência' }
+    ];
+    
+    colunasExibir.forEach(item => {
       const td = document.createElement('td');
-      const colunaReal = colunasExcel[coluna];
-      let valor = colunaReal ? linha[colunaReal] : '';
-      if (valor && String(valor).toLowerCase() === 'nan') valor = '';
-      td.textContent = valor || '';
+      const colunaReal = colunasExcel[item.col];
+      let valor = colunaReal ? String(linha[colunaReal] || '') : '';
+      if (valor.toLowerCase() === 'nan' || valor === '') valor = '';
+      td.textContent = valor;
       tr.appendChild(td);
     });
     
     const tdComprovante = document.createElement('td');
-    const cte = linha[colunasExcel['CTE']];
-    if (cte && String(cte).toLowerCase() !== 'nan' && imagens[cte] && imagens[cte].length) {
+    const cte = String(linha[colunasExcel['CTE']] || '');
+    if (cte && cte.toLowerCase() !== 'nan' && imagens[cte] && imagens[cte].length) {
       const badge = document.createElement('span');
       badge.className = 'comprovante-badge';
       badge.textContent = `${imagens[cte].length} imagem(ns)`;
@@ -693,7 +709,7 @@ function atualizarEstatisticas() {
   const colCredito = colunasExcel['Credito'];
   
   dadosOriginais.forEach(linha => {
-    const valor = parseFloat(linha[colValor]) || 0;
+    const valor = parseFloat(String(linha[colValor] || '').replace('R$', '').replace(',', '.')) || 0;
     totalValor += valor;
     
     const credito = String(linha[colCredito] || '').trim().toLowerCase();
@@ -701,8 +717,8 @@ function atualizarEstatisticas() {
       totalCredito += valor;
     }
     
-    const c = linha[colCTE];
-    if (c && String(c).toLowerCase() !== 'nan' && imagens[c]) {
+    const c = String(linha[colCTE] || '');
+    if (c && c.toLowerCase() !== 'nan' && imagens[c]) {
       cteSet.add(c);
     }
   });
@@ -714,7 +730,7 @@ function atualizarEstatisticas() {
 }
 
 function aplicarFiltrosAutomatico() {
-  const creditoFiltro = document.getElementById('filterCredito').value;
+  const creditoFiltro = document.getElementById('filterCredito').value.toLowerCase();
   const comprovanteFiltro = document.getElementById('filterComprovante').value;
   const responsavelFiltro = document.getElementById('filterResponsavel').value;
   
@@ -722,13 +738,13 @@ function aplicarFiltrosAutomatico() {
     let ok = true;
     
     if (creditoFiltro) {
-      const credito = String(linha[colunasExcel['Credito']] || '').trim();
-      ok = ok && credito.toLowerCase() === creditoFiltro.toLowerCase();
+      const credito = String(linha[colunasExcel['Credito']] || '').trim().toLowerCase();
+      ok = ok && credito === creditoFiltro;
     }
     
     if (comprovanteFiltro) {
-      const cte = linha[colunasExcel['CTE']];
-      const temComprovante = cte && String(cte).toLowerCase() !== 'nan' && imagens[cte] && imagens[cte].length > 0;
+      const cte = String(linha[colunasExcel['CTE']] || '');
+      const temComprovante = cte && cte.toLowerCase() !== 'nan' && imagens[cte] && imagens[cte].length > 0;
       
       if (comprovanteFiltro === 'com') {
         ok = ok && temComprovante;
