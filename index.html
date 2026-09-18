@@ -6,919 +6,509 @@
   <title>Painel de Consulta de Crédito</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, Helvetica, sans-serif;
-      background: #f5f5f5;
-      padding: 20px;
-    }
-    .container {
-      max-width: 1400px;
-      margin: auto;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    .header {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #fff;
-      padding: 30px;
-      text-align: center;
-      border-radius: 8px 8px 0 0;
-    }
-    .header h1 {
-      font-size: 28px;
-      font-weight: 600;
-    }
-    .content {
-      padding: 30px;
-    }
-    .message {
-      display: none;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 6px;
-      font-weight: 500;
-    }
-    .message.show {
-      display: block;
-    }
-    .message.success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-    .message.error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-    .stat-card {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      text-align: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    .stat-card h3 {
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 10px;
-      opacity: 0.9;
-    }
-    .stat-card .number {
-      font-size: 32px;
-      font-weight: bold;
-    }
-    .upload-section {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-    .upload-box {
-      border: 2px dashed #667eea;
-      border-radius: 8px;
-      padding: 40px;
-      text-align: center;
-      cursor: pointer;
-      background: #f9f9ff;
-      transition: all 0.3s ease;
-    }
-    .upload-box:hover {
-      border-color: #764ba2;
-      background: #f0ebff;
-    }
-    .upload-box i {
-      font-size: 40px;
-      color: #667eea;
-      margin-bottom: 15px;
-    }
-    .upload-box p {
-      margin: 10px 0;
-      font-weight: 600;
-      color: #333;
-    }
-    .upload-box small {
-      color: #999;
-    }
-    .upload-box input {
-      display: none;
-    }
-    .button-group {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-    }
-    .button-group button {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 12px 20px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-    .button-group button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-    .filters {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 30px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .filters select {
-      padding: 10px 15px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-      background: #fff;
-      color: #333;
-      min-width: 180px;
-    }
-    .filters select:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    .filters button {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-    .filters button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-    .filters button.secondary {
-      background: #6c757d;
-    }
-    .filters button.secondary:hover {
-      background: #5a6268;
-    }
-    .loading {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    .loading.active {
-      display: flex;
-    }
-    .loading-content {
-      background: #fff;
-      padding: 30px;
-      border-radius: 8px;
-      text-align: center;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    }
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #667eea;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 15px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .progress-bar {
-      width: 300px;
-      height: 6px;
-      background: #ddd;
-      border-radius: 3px;
-      margin-top: 15px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #667eea, #764ba2);
-      width: 0%;
-      transition: width 0.3s ease;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-      margin-top: 20px;
-      overflow-x: auto;
-    }
-    thead {
-      background: #667eea;
-      color: #fff;
-      position: sticky;
-      top: 0;
-    }
-    th {
-      padding: 15px;
-      text-align: left;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    td {
-      padding: 12px 15px;
-      border-bottom: 1px solid #ddd;
-    }
-    tbody tr:hover {
-      background: #f9f9ff;
-    }
-    .comprovante-badge {
-      background: linear-gradient(135deg, #28a745, #20c997);
-      color: #fff;
-      padding: 6px 12px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 11px;
-      font-weight: 600;
-      display: inline-block;
-      transition: all 0.3s ease;
-    }
-    .comprovante-badge:hover {
-      transform: scale(1.05);
-      box-shadow: 0 2px 8px rgba(40, 167, 69, 0.4);
-    }
-    .no-data {
-      text-align: center;
-      color: #999;
-      font-style: italic;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      justify-content: center;
-      align-items: center;
-      z-index: 1001;
-    }
-    .modal.active {
-      display: flex;
-    }
-    .modal-content {
-      background: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      max-width: 800px;
-      max-height: 90vh;
-      overflow-y: auto;
-      position: relative;
-    }
-    .modal-close {
-      position: absolute;
-      top: 15px;
-      right: 20px;
-      font-size: 28px;
-      cursor: pointer;
-      color: #666;
-    }
-    .modal-close:hover {
-      color: #000;
-    }
-    .modal-image {
-      width: 100%;
-      border-radius: 6px;
-      margin-bottom: 15px;
-    }
-    .modal-info {
-      text-align: center;
-      color: #666;
-      font-size: 12px;
-      margin-bottom: 15px;
-    }
-    .modal-nav {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
-    .modal-nav button {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 15px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: all 0.3s ease;
-    }
-    .modal-nav button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-    @media (max-width: 768px) {
-      .upload-section {
-        grid-template-columns: 1fr;
-      }
-      .stats {
-        grid-template-columns: 1fr;
-      }
-      .filters {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .filters select, .filters button {
-        width: 100%;
-      }
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; padding: 20px; }
+    .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 30px; }
+    .header { margin-bottom: 30px; border-bottom: 3px solid #007bff; padding-bottom: 15px; }
+    .header h1 { color: #333; font-size: 28px; }
+    
+    .stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .stat-card h3 { font-size: 14px; margin-bottom: 10px; opacity: 0.9; }
+    .stat-card .value { font-size: 28px; font-weight: bold; }
+    .stat-card.total-value { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .stat-card.credit { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    
+    .upload-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .upload-box { border: 2px dashed #ddd; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; }
+    .upload-box:hover { border-color: #007bff; background-color: #f0f8ff; }
+    .upload-box input { display: none; }
+    .upload-box i { font-size: 32px; color: #007bff; margin-bottom: 10px; }
+    .upload-box p { color: #666; margin-top: 10px; }
+    
+    .filter-section { background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #ddd; }
+    .filter-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+    .filter-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #333; }
+    .filter-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    .filter-buttons { display: flex; gap: 10px; }
+    .filter-buttons button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+    .clear-btn { background-color: #dc3545; color: white; }
+    .clear-btn:hover { background-color: #c82333; }
+    
+    .loading { display: none; text-align: center; padding: 20px; }
+    .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #007bff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    .progress-bar { width: 100%; height: 4px; background-color: #e9ecef; border-radius: 2px; margin: 10px 0; overflow: hidden; }
+    .progress-fill { height: 100%; background-color: #28a745; width: 0%; transition: width 0.3s; }
+    
+    .message { padding: 15px; border-radius: 4px; margin-bottom: 20px; }
+    .message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .message.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    thead { background-color: #007bff; color: white; }
+    th { padding: 12px; text-align: left; font-weight: 600; }
+    td { padding: 12px; border-bottom: 1px solid #ddd; }
+    tbody tr:hover { background-color: #f5f5f5; }
+    .no-data { text-align: center; color: #999; padding: 40px !important; }
+    
+    .image-cell { cursor: pointer; color: #007bff; text-decoration: underline; }
+    .image-cell:hover { color: #0056b3; }
+    
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+    .modal-content { background-color: white; margin: 5% auto; padding: 20px; border: 1px solid #888; border-radius: 8px; width: 80%; max-height: 80vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h2 { margin: 0; }
+    .close { font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa; }
+    .close:hover { color: #000; }
+    .image-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+    .image-container img { width: 100%; height: auto; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; }
+    .image-container img:hover { transform: scale(1.05); transition: transform 0.3s; }
   </style>
 </head>
 <body>
+
 <div class="container">
   <div class="header">
     <h1><i class="fas fa-chart-bar"></i> Painel de Consulta de Crédito</h1>
   </div>
-  <div class="content">
-    <div id="messageBox" class="message"></div>
-    
-    <div class="stats">
-      <div class="stat-card">
-        <h3>Total de Registros</h3>
-        <div class="number" id="totalRecords">0</div>
-      </div>
-      <div class="stat-card">
-        <h3>Total de Débito</h3>
-        <div class="number" id="totalImages">R$ 0,00</div>
-      </div>
-      <div class="stat-card">
-        <h3>CTEs com Imagem</h3>
-        <div class="number" id="ctesWithImage">0</div>
-      </div>
-      <div class="stat-card">
-        <h3>Possíveis Créditos</h3>
-        <div class="number" id="recordsWithImage">R$ 0,00</div>
-      </div>
-    </div>
 
-    <div class="upload-section">
-      <div class="upload-box" id="excelUploadBox">
-        <i class="fas fa-file-excel"></i>
-        <p><strong>Clique ou arraste um arquivo Excel</strong></p>
-        <small>Formatos: .xlsx, .xls, .csv</small>
-        <input type="file" id="excelInput" accept=".xlsx,.xls,.csv">
-      </div>
-      <div class="upload-box" id="imageUploadBox">
-        <i class="fas fa-images"></i>
-        <p><strong>Clique ou arraste imagens</strong></p>
-        <small>Formato: .jpg/.png etc (Nome = CTE)</small>
-        <input type="file" id="imageInput" accept="image/*" multiple>
-      </div>
-    </div>
+  <div id="message"></div>
 
-    <div class="button-group">
-      <button onclick="carregarExcelOnline()"><i class="fas fa-download"></i> Carregar Excel Online</button>
-      <button onclick="carregarImagensOnline()"><i class="fas fa-download"></i> Carregar Imagens Online</button>
+  <div class="stats-container">
+    <div class="stat-card">
+      <h3>Total de Registros</h3>
+      <div class="value" id="totalRegistros">0</div>
     </div>
-
-    <div class="filters">
-      <select id="filterCredito" onchange="aplicarFiltrosAutomatico()">
-        <option value="">Filtrar por Crédito</option>
-        <option value="sim">Sim</option>
-        <option value="gestão">Gestão</option>
-        <option value="reversa">Reversa</option>
-      </select>
-      <select id="filterComprovante" onchange="aplicarFiltrosAutomatico()">
-        <option value="">Filtrar por Comprovante</option>
-        <option value="com">Com Comprovante</option>
-        <option value="sem">Sem Comprovante</option>
-      </select>
-      <select id="filterResponsavel" onchange="aplicarFiltrosAutomatico()">
-        <option value="">Filtrar por Responsável</option>
-      </select>
-      <button class="secondary" onclick="limparFiltros()"><i class="fas fa-redo"></i> Limpar Filtros</button>
+    <div class="stat-card total-value">
+      <h3>Total de Débito</h3>
+      <div class="value" id="totalDebito">R$ 0,00</div>
     </div>
-
-    <table id="dataTable">
-      <thead>
-        <tr>
-          <th>Crédito</th>
-          <th>CTE</th>
-          <th>OI</th>
-          <th>Responsável</th>
-          <th>NF Whi - Eletrônica</th>
-          <th>complemento</th>
-          <th>última ocorrência</th>
-          <th>Comprovante</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody">
-        <tr>
-          <td colspan="8" class="no-data">Nenhum dado carregado.</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="stat-card credit">
+      <h3>Possíveis Créditos</h3>
+      <div class="value" id="totalCredito">R$ 0,00</div>
+    </div>
+    <div class="stat-card">
+      <h3>CTEs com Comprovante</h3>
+      <div class="value" id="ctesComImagem">0</div>
+    </div>
   </div>
-</div>
 
-<div id="loading" class="loading">
-  <div class="loading-content">
+  <div class="upload-section">
+    <div class="upload-box" id="uploadExcel">
+      <input type="file" id="fileInput" accept=".xlsx,.xls">
+      <i class="fas fa-file-excel"></i>
+      <p><strong>Carregar Excel Online</strong></p>
+      <p style="font-size: 12px; color: #999;">Clique ou arraste o arquivo</p>
+    </div>
+    <div class="upload-box" id="uploadImages">
+      <input type="file" id="imageInput" multiple accept="image/*">
+      <i class="fas fa-images"></i>
+      <p><strong>Carregar Imagens Online</strong></p>
+      <p style="font-size: 12px; color: #999;">Clique ou arraste as imagens</p>
+    </div>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-group">
+      <div>
+        <label for="filterCredito">Crédito</label>
+        <select id="filterCredito">
+          <option value="">-- Todos --</option>
+          <option value="sim">Sim</option>
+          <option value="gestão">Gestão</option>
+          <option value="reversa">Reversa</option>
+        </select>
+      </div>
+      <div>
+        <label for="filterComprovante">Comprovante</label>
+        <select id="filterComprovante">
+          <option value="">-- Todos --</option>
+          <option value="com">Com</option>
+          <option value="sem">Sem</option>
+        </select>
+      </div>
+      <div>
+        <label for="filterResponsavel">Responsável</label>
+        <select id="filterResponsavel">
+          <option value="">-- Todos --</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-buttons">
+      <button class="clear-btn" onclick="limparFiltros()"><i class="fas fa-redo"></i> Limpar Filtros</button>
+    </div>
+  </div>
+
+  <div class="loading">
     <div class="spinner"></div>
-    <p id="loadingText">Processando...</p>
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
+    <p>Carregando dados...</p>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
   </div>
+
+  <table id="dataTable">
+    <thead>
+      <tr>
+        <th>Crédito</th>
+        <th>CTE</th>
+        <th>Responsável</th>
+        <th>NF Whi - Eletrônica</th>
+        <th>Motivo</th>
+        <th>última ocorrência</th>
+        <th>Comprovante</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <tr><td colspan="7" class="no-data">Nenhum dado carregado.</td></tr>
+    </tbody>
+  </table>
 </div>
 
 <div id="imageModal" class="modal">
   <div class="modal-content">
-    <span class="modal-close" onclick="fecharModal()">&times;</span>
-    <img id="modalImage" class="modal-image">
-    <div id="modalInfo" class="modal-info"></div>
-    <div class="modal-nav">
-      <button onclick="imagemAnterior()"><i class="fas fa-chevron-left"></i> Anterior</button>
-      <button onclick="proximaImagem()">Próxima <i class="fas fa-chevron-right"></i></button>
-      <button onclick="downloadImagem()"><i class="fas fa-download"></i> Download</button>
+    <div class="modal-header">
+      <h2>Imagens do Comprovante</h2>
+      <span class="close" onclick="fecharModal()">&times;</span>
     </div>
+    <div id="imageContainer" class="image-container"></div>
   </div>
 </div>
 
 <script src="https://unpkg.com/xlsx@latest/dist/xlsx.full.min.js"></script>
 <script>
-const GITHUB_CONFIG = {
-  usuario: 'jonathanbueno-jmb',
-  repositorio: 'whp',
-  ramo: 'main',
-  arquivoExcel: 'consultacredito.xlsx',
-  pastaImagens: 'imagens'
-};
-
-let dados = [], dadosOriginais = [], imagens = {}, imagensModal = [], indexImagemAtual = 0, colunasExcel = {};
-
-function mostrarLoading(txt = 'Processando...', show = true) {
-  const loading = document.getElementById('loading');
-  if (show) {
-    document.getElementById('loadingText').textContent = txt;
-    document.getElementById('progressFill').style.width = '0%';
-    loading.classList.add('active');
-  } else {
-    loading.classList.remove('active');
-  }
-}
-
-function atualizarProgresso(percentual) {
-  document.getElementById('progressFill').style.width = percentual + '%';
-}
-
-function mostrarMensagem(texto, tipo = 'success') {
-  const msgBox = document.getElementById('messageBox');
-  msgBox.textContent = texto;
-  msgBox.className = 'message show ' + tipo;
-  setTimeout(() => msgBox.classList.remove('show'), 5000);
-}
-
-function extrairCTE(nome) {
-  const match = nome.match(/([A-Z]{2,3}\d{6,8}-\d)/);
-  return match ? match[1] : null;
-}
-
-function formatarMoeda(valor) {
-  const num = parseFloat(valor) || 0;
-  return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
-async function carregarExcelOnline() {
-  mostrarLoading('Carregando Excel Online...');
-  try {
-    const url = `https://raw.githubusercontent.com/${GITHUB_CONFIG.usuario}/${GITHUB_CONFIG.repositorio}/${GITHUB_CONFIG.ramo}/${GITHUB_CONFIG.arquivoExcel}`;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Arquivo não encontrado');
-    const blob = await response.blob();
-    processarArquivoExcel(new File([blob], GITHUB_CONFIG.arquivoExcel, {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    }));
-  } catch (error) {
-    mostrarLoading('', false);
-    mostrarMensagem('Erro ao carregar Excel: ' + error.message, 'error');
-  }
-}
-
-async function carregarImagensOnline() {
-  mostrarLoading('Carregando imagens Online...');
-  try {
-    const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.usuario}/${GITHUB_CONFIG.repositorio}/contents/${GITHUB_CONFIG.pastaImagens}`;
-    const response = await fetch(apiUrl);
-    if (!response.ok) throw new Error('Pasta não encontrada');
-    const lista = await response.json();
-    
-    imagens = {};
-    const arquivosImagem = lista.filter(arquivo => /\.(jpg|jpeg|png|gif|webp)$/i.test(arquivo.name));
-    let processados = 0;
-    
-    for (const arquivo of arquivosImagem) {
-      const cte = extrairCTE(arquivo.name);
-      if (cte) {
-        if (!imagens[cte]) imagens[cte] = [];
-        imagens[cte].push({ url: arquivo.download_url, nome: arquivo.name });
-      }
-      processados++;
-      atualizarProgresso((processados / arquivosImagem.length) * 100);
-    }
-    
-    renderizarTabela();
-    atualizarEstatisticas();
-    mostrarLoading('', false);
-    mostrarMensagem(`${processados} imagens carregadas!`, 'success');
-  } catch (error) {
-    mostrarLoading('', false);
-    mostrarMensagem('Erro ao carregar imagens: ' + error.message, 'error');
-  }
-}
-
-function processarArquivoExcel(arquivo) {
-  const leitor = new FileReader();
-  leitor.onload = (evento) => {
-    try {
-      const dadosArquivo = evento.target.result;
-      const workbook = XLSX.read(dadosArquivo, { type: 'array' });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const range = XLSX.utils.decode_range(sheet['!ref']);
-      
-      let headers = [];
-      for (let C = range.s.c; C <= range.e.c; C++) {
-        const endereco = XLSX.utils.encode_col(C) + '1';
-        const celula = sheet[endereco];
-        headers.push(celula ? celula.v : '');
-      }
-      
-      let linhas = [];
-      for (let R = range.s.r + 1; R <= range.e.r; R++) {
-        let linha = {};
-        for (let C = range.s.c; C <= range.e.c; C++) {
-          const endereco = XLSX.utils.encode_col(C) + (R + 1);
-          const celula = sheet[endereco];
-          linha[headers[C]] = celula ? celula.v : '';
-        }
-        if (Object.values(linha).some(v => v)) linhas.push(linha);
-      }
-      
-      dados = linhas;
-      dadosOriginais = JSON.parse(JSON.stringify(dados));
-      mapearcolunas();
-      preencherFiltros();
-      renderizarTabela();
-      atualizarEstatisticas();
-      mostrarLoading('', false);
-      mostrarMensagem('Excel carregado com sucesso!', 'success');
-    } catch (erro) {
-      mostrarLoading('', false);
-      mostrarMensagem('Erro ao processar Excel: ' + erro.message, 'error');
-    }
+  const GITHUB_CONFIG = {
+    usuario: 'jonathanbueno-jmb',
+    repositorio: 'whp',
+    ramo: 'main',
+    arquivoExcel: 'consultacredito.xlsx',
+    pastaImagens: 'imagens'
   };
-  leitor.readAsArrayBuffer(arquivo);
-}
 
-function mapearcolunas() {
-  if (!dados.length) return;
-  const primeira = dados[0];
-  const colunas = Object.keys(primeira);
-  
+  let dadosExcel = [];
+  let imagesGithub = {};
+  let colunasExcel = {};
+
   function achar(nomes) {
-    for (const nome of nomes) {
-      const achado = colunas.find(c => c.trim().toLowerCase() === nome.trim().toLowerCase());
-      if (achado) return achado;
-    }
-    return null;
-  }
-  
-  colunasExcel = {
-    Credito: achar(['Credito', 'Crédito']),
-    CTE: achar(['CTE']),
-    OI: achar(['OI']),
-    Responsavel: achar(['Responsável', 'Responsavel']),
-    NFWhi: achar(['NF Whi - Eletrônica', 'NF Whi']),
-    complemento: achar(['complemento']),
-    ultimaocorrencia: achar(['ultima ocorrencia', 'ultima ocorrência']),
-    DataEnvioBase: achar(['Data Envio Base']),
-    Valor: achar(['Valor'])
-  };
-}
-
-function preencherFiltros() {
-  const responsavelSet = new Set();
-  
-  dadosOriginais.forEach(linha => {
-    const responsavel = String(linha[colunasExcel['Responsavel']] || '').trim();
-    if (responsavel && responsavel.toLowerCase() !== 'nan') {
-      responsavelSet.add(responsavel);
-    }
-  });
-  
-  const selectResponsavel = document.getElementById('filterResponsavel');
-  selectResponsavel.innerHTML = '<option value="">Filtrar por Responsável</option>';
-  Array.from(responsavelSet).sort().forEach(resp => {
-    const option = document.createElement('option');
-    option.value = resp;
-    option.textContent = resp;
-    selectResponsavel.appendChild(option);
-  });
-}
-
-function renderizarTabela() {
-  const tableBody = document.getElementById('tableBody');
-  tableBody.innerHTML = '';
-  
-  if (!dados.length) {
-    tableBody.innerHTML = '<tr><td colspan="8" class="no-data">Nenhum dado para exibir.</td></tr>';
-    return;
-  }
-  
-  dados.forEach(linha => {
-    const tr = document.createElement('tr');
-    
-    // Crédito
-    const tdCredito = document.createElement('td');
-    tdCredito.textContent = String(linha[colunasExcel['Credito']] || '').trim();
-    tr.appendChild(tdCredito);
-    
-    // CTE
-    const tdCTE = document.createElement('td');
-    tdCTE.textContent = String(linha[colunasExcel['CTE']] || '').trim();
-    tr.appendChild(tdCTE);
-    
-    // OI
-    const tdOI = document.createElement('td');
-    tdOI.textContent = String(linha[colunasExcel['OI']] || '').trim();
-    tr.appendChild(tdOI);
-    
-    // Responsável
-    const tdResponsavel = document.createElement('td');
-    tdResponsavel.textContent = String(linha[colunasExcel['Responsavel']] || '').trim();
-    tr.appendChild(tdResponsavel);
-    
-    // NF Whi - Eletrônica
-    const tdNFWhi = document.createElement('td');
-    tdNFWhi.textContent = String(linha[colunasExcel['NFWhi']] || '').trim();
-    tr.appendChild(tdNFWhi);
-    
-    // complemento
-    const tdComplemento = document.createElement('td');
-    tdComplemento.textContent = String(linha[colunasExcel['complemento']] || '').trim();
-    tr.appendChild(tdComplemento);
-    
-    // última ocorrência
-    const tdUltimaOcorrencia = document.createElement('td');
-    tdUltimaOcorrencia.textContent = String(linha[colunasExcel['ultimaocorrencia']] || '').trim();
-    tr.appendChild(tdUltimaOcorrencia);
-    
-    // Comprovante
-    const tdComprovante = document.createElement('td');
-    const cte = String(linha[colunasExcel['CTE']] || '').trim();
-    if (cte && cte.toLowerCase() !== 'nan' && imagens[cte] && imagens[cte].length) {
-      const badge = document.createElement('span');
-      badge.className = 'comprovante-badge';
-      badge.textContent = `${imagens[cte].length} imagem(ns)`;
-      badge.onclick = (e) => {
-        e.preventDefault();
-        abrirModal(cte);
-      };
-      tdComprovante.appendChild(badge);
-    } else {
-      tdComprovante.textContent = 'Sem comprovante';
-      tdComprovante.style.color = '#999';
-      tdComprovante.style.fontSize = '11px';
-    }
-    tr.appendChild(tdComprovante);
-    tableBody.appendChild(tr);
-  });
-}
-
-function atualizarEstatisticas() {
-  const total = dados.length;
-  let cteSet = new Set(), totalValor = 0, totalCredito = 0;
-  const colCTE = colunasExcel['CTE'];
-  const colValor = colunasExcel['Valor'];
-  const colCredito = colunasExcel['Credito'];
-  
-  dadosOriginais.forEach(linha => {
-    const valor = parseFloat(String(linha[colValor] || '').replace('R$', '').replace(',', '.')) || 0;
-    totalValor += valor;
-    
-    const credito = String(linha[colCredito] || '').trim().toLowerCase();
-    if (credito === 'sim') {
-      totalCredito += valor;
-    }
-    
-    const c = String(linha[colCTE] || '').trim();
-    if (c && c.toLowerCase() !== 'nan' && imagens[c]) {
-      cteSet.add(c);
-    }
-  });
-  
-  document.getElementById('totalRecords').textContent = total;
-  document.getElementById('ctesWithImage').textContent = cteSet.size;
-  document.getElementById('totalImages').textContent = formatarMoeda(totalValor);
-  document.getElementById('recordsWithImage').textContent = formatarMoeda(totalCredito);
-}
-
-function aplicarFiltrosAutomatico() {
-  const creditoFiltro = document.getElementById('filterCredito').value.toLowerCase();
-  const comprovanteFiltro = document.getElementById('filterComprovante').value;
-  const responsavelFiltro = document.getElementById('filterResponsavel').value;
-  
-  dados = dadosOriginais.filter(linha => {
-    let ok = true;
-    
-    if (creditoFiltro) {
-      const credito = String(linha[colunasExcel['Credito']] || '').trim().toLowerCase();
-      ok = ok && credito === creditoFiltro;
-    }
-    
-    if (comprovanteFiltro) {
-      const cte = String(linha[colunasExcel['CTE']] || '').trim();
-      const temComprovante = cte && cte.toLowerCase() !== 'nan' && imagens[cte] && imagens[cte].length > 0;
-      
-      if (comprovanteFiltro === 'com') {
-        ok = ok && temComprovante;
-      } else if (comprovanteFiltro === 'sem') {
-        ok = ok && !temComprovante;
+    for (let nome of nomes) {
+      for (let col in colunasExcel) {
+        if (col.toLowerCase() === nome.toLowerCase()) {
+          return colunasExcel[col];
+        }
       }
     }
-    
-    if (responsavelFiltro) {
-      const responsavel = String(linha[colunasExcel['Responsavel']] || '').trim();
-      ok = ok && responsavel === responsavelFiltro;
+    return -1;
+  }
+
+  function mapearcolunas(cabecalho) {
+    colunasExcel = {};
+    for (let i = 0; i < cabecalho.length; i++) {
+      const nome = String(cabecalho[i] || '').trim().toLowerCase();
+      colunasExcel[nome] = i;
     }
-    
-    return ok;
-  });
-  
-  renderizarTabela();
-  atualizarEstatisticas();
-}
-
-function limparFiltros() {
-  document.getElementById('filterCredito').value = '';
-  document.getElementById('filterComprovante').value = '';
-  document.getElementById('filterResponsavel').value = '';
-  dados = JSON.parse(JSON.stringify(dadosOriginais));
-  renderizarTabela();
-  atualizarEstatisticas();
-  mostrarMensagem('Filtros removidos!', 'success');
-}
-
-function abrirModal(cte) {
-  imagensModal = imagens[cte] || [];
-  indexImagemAtual = 0;
-  if (imagensModal.length) {
-    mostrarImagemModal();
-    document.getElementById('imageModal').classList.add('active');
   }
-}
 
-function fecharModal() {
-  document.getElementById('imageModal').classList.remove('active');
-}
-
-function mostrarImagemModal() {
-  if (!imagensModal.length) return;
-  const imagem = imagensModal[indexImagemAtual];
-  document.getElementById('modalImage').src = imagem.url;
-  document.getElementById('modalInfo').textContent = `${indexImagemAtual + 1} / ${imagensModal.length} - ${imagem.nome}`;
-}
-
-function proximaImagem() {
-  if (imagensModal.length) {
-    indexImagemAtual = (indexImagemAtual + 1) % imagensModal.length;
-    mostrarImagemModal();
+  function formatarMoeda(valor) {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(valor);
   }
-}
 
-function imagemAnterior() {
-  if (imagensModal.length) {
-    indexImagemAtual = (indexImagemAtual - 1 + imagensModal.length) % imagensModal.length;
-    mostrarImagemModal();
+  function carregarExcelOnline() {
+    const url = `https://raw.githubusercontent.com/${GITHUB_CONFIG.usuario}/${GITHUB_CONFIG.repositorio}/${GITHUB_CONFIG.ramo}/${GITHUB_CONFIG.arquivoExcel}`;
+    mostrarLoading();
+    fetch(url)
+      .then(response => response.arrayBuffer())
+      .then(data => {
+        processarArquivoExcel(data);
+        mostrarMensagem('Excel carregado com sucesso!', 'success');
+      })
+      .catch(err => {
+        console.error('Erro ao carregar Excel:', err);
+        mostrarMensagem('Erro ao carregar Excel. Verifique a URL.', 'error');
+      })
+      .finally(() => ocultarLoading());
   }
-}
 
-function downloadImagem() {
-  if (imagensModal.length) {
-    const imagem = imagensModal[indexImagemAtual];
-    const link = document.createElement('a');
-    link.href = imagem.url;
-    link.download = imagem.nome;
-    link.click();
-  }
-}
-
-// Drag and Drop para arquivos Excel
-const excelUploadBox = document.getElementById('excelUploadBox');
-const excelInput = document.getElementById('excelInput');
-
-excelUploadBox.addEventListener('click', () => excelInput.click());
-excelUploadBox.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  excelUploadBox.style.background = '#f0ebff';
-});
-excelUploadBox.addEventListener('dragleave', () => {
-  excelUploadBox.style.background = '#f9f9ff';
-});
-excelUploadBox.addEventListener('drop', (e) => {
-  e.preventDefault();
-  excelUploadBox.style.background = '#f9f9ff';
-  if (e.dataTransfer.files.length) processarArquivoExcel(e.dataTransfer.files[0]);
-});
-excelInput.addEventListener('change', (e) => {
-  if (e.target.files.length) processarArquivoExcel(e.target.files[0]);
-});
-
-// Drag and Drop para imagens
-const imageUploadBox = document.getElementById('imageUploadBox');
-const imageInput = document.getElementById('imageInput');
-
-imageUploadBox.addEventListener('click', () => imageInput.click());
-imageUploadBox.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  imageUploadBox.style.background = '#f0ebff';
-});
-imageUploadBox.addEventListener('dragleave', () => {
-  imageUploadBox.style.background = '#f9f9ff';
-});
-imageUploadBox.addEventListener('drop', (e) => {
-  e.preventDefault();
-  imageUploadBox.style.background = '#f9f9ff';
-  const arquivos = Array.from(e.dataTransfer.files).filter(f => /image/i.test(f.type));
-  
-  imagens = {};
-  let processados = 0;
-  
-  arquivos.forEach(arquivo => {
-    const cte = extrairCTE(arquivo.name);
-    if (cte) {
-      const leitor = new FileReader();
-      leitor.onload = (evento) => {
-        if (!imagens[cte]) imagens[cte] = [];
-        imagens[cte].push({ url: evento.target.result, nome: arquivo.name });
-        processados++;
-        
-        if (processados === arquivos.length) {
-          renderizarTabela();
-          atualizarEstatisticas();
-          mostrarMensagem(`${arquivos.length} imagens carregadas!`, 'success');
+  function carregarImagensOnline() {
+    const url = `https://api.github.com/repos/${GITHUB_CONFIG.usuario}/${GITHUB_CONFIG.repositorio}/contents/${GITHUB_CONFIG.pastaImagens}`;
+    mostrarLoading();
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        imagesGithub = {};
+        if (Array.isArray(data)) {
+          data.forEach(file => {
+            if (file.type === 'file' && /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name)) {
+              const nomeSemExtensao = file.name.replace(/\.[^/.]+$/, '');
+              imagesGithub[nomeSemExtensao] = file.download_url;
+            }
+          });
+          mostrarMensagem(`${Object.keys(imagesGithub).length} imagens carregadas do GitHub!`, 'success');
         }
-      };
-      leitor.readAsDataURL(arquivo);
-    }
-  });
-});
+      })
+      .catch(err => {
+        console.error('Erro ao carregar imagens:', err);
+        mostrarMensagem('Erro ao carregar imagens do GitHub.', 'error');
+      })
+      .finally(() => ocultarLoading());
+  }
 
-imageInput.addEventListener('change', (e) => {
-  const arquivos = Array.from(e.target.files).filter(f => /image/i.test(f.type));
-  
-  imagens = {};
-  let processados = 0;
-  
-  arquivos.forEach(arquivo => {
-    const cte = extrairCTE(arquivo.name);
-    if (cte) {
-      const leitor = new FileReader();
-      leitor.onload = (evento) => {
-        if (!imagens[cte]) imagens[cte] = [];
-        imagens[cte].push({ url: evento.target.result, nome: arquivo.name });
-        processados++;
-        
-        if (processados === arquivos.length) {
-          renderizarTabela();
-          atualizarEstatisticas();
-          mostrarMensagem(`${arquivos.length} imagens carregadas!`, 'success');
-        }
+  function processarArquivoExcel(arrayBuffer) {
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const dados = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    if (dados.length === 0) return;
+    mapearcolunas(dados[0]);
+    dadosExcel = dados.slice(1);
+    preencherFiltros();
+    aplicarFiltrosAutomatico();
+    atualizarEstatisticas();
+  }
+
+  function preencherFiltros() {
+    const colResponsavel = achar(['Responsável', 'responsável']);
+    const responsavelSet = new Set();
+    dadosExcel.forEach(linha => {
+      if (colResponsavel !== -1 && linha[colResponsavel]) {
+        responsavelSet.add(String(linha[colResponsavel]).trim());
+      }
+    });
+    const selectResponsavel = document.getElementById('filterResponsavel');
+    const opcoes = Array.from(responsavelSet).sort();
+    opcoes.forEach(opcao => {
+      const option = document.createElement('option');
+      option.value = opcao;
+      option.textContent = opcao;
+      selectResponsavel.appendChild(option);
+    });
+  }
+
+  function atualizarEstatisticas() {
+    const colCredito = achar(['Crédito', 'credito']);
+    const colValor = achar(['Valor', 'valor']);
+    const colCTE = achar(['CTE', 'cte']);
+    const colDataEnvio = achar(['Data Envio Base', 'data envio base']);
+
+    let totalRegistros = 0;
+    let totalDebito = 0;
+    let totalCredito = 0;
+    let ctesComImagem = 0;
+
+    dadosExcel.forEach(linha => {
+      const credito = String(linha[colCredito] || '').trim().toLowerCase();
+      const valor = parseFloat(String(linha[colValor] || '0').replace(/[^0-9.-]/g, '')) || 0;
+      const cte = String(linha[colCTE] || '').trim();
+
+      totalRegistros++;
+      if (valor > 0) totalDebito += valor;
+      if (credito === 'sim') totalCredito += valor;
+      if (cte && imagesGithub[cte]) ctesComImagem++;
+    });
+
+    document.getElementById('totalRegistros').textContent = totalRegistros;
+    document.getElementById('totalDebito').textContent = formatarMoeda(totalDebito);
+    document.getElementById('totalCredito').textContent = formatarMoeda(totalCredito);
+    document.getElementById('ctesComImagem').textContent = ctesComImagem;
+  }
+
+  function renderizarTabela(dados) {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+
+    if (dados.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="no-data">Nenhum dado encontrado com os filtros selecionados.</td></tr>';
+      return;
+    }
+
+    const colCredito = achar(['Crédito', 'credito']);
+    const colCTE = achar(['CTE', 'cte']);
+    const colResponsavel = achar(['Responsável', 'responsável']);
+    const colNF = achar(['NF Whi - Eletrônica', 'NF Whi']);
+    const colMotivo = achar(['Motivo', 'motivo']);
+    const colUltimaOcorrencia = achar(['última ocorrência', 'ultima ocorrencia']);
+
+    dados.forEach(linha => {
+      const tr = document.createElement('tr');
+      const credito = String(linha[colCredito] || '').trim();
+      const cte = String(linha[colCTE] || '').trim();
+      const responsavel = String(linha[colResponsavel] || '').trim();
+      const nf = String(linha[colNF] || '').trim();
+      const motivo = String(linha[colMotivo] || '').trim();
+      const ultimaOcorrencia = String(linha[colUltimaOcorrencia] || '').trim();
+      const temImagem = cte && imagesGithub[cte];
+
+      tr.innerHTML = `
+        <td>${credito}</td>
+        <td>${cte}</td>
+        <td>${responsavel}</td>
+        <td>${nf}</td>
+        <td>${motivo}</td>
+        <td>${ultimaOcorrencia}</td>
+        <td>
+          ${temImagem ? `<span class="image-cell" onclick="abrirModal('${cte}')"><i class="fas fa-image"></i> Ver</span>` : 'Sem comprovante'}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function aplicarFiltrosAutomatico() {
+    const filterCredito = document.getElementById('filterCredito').value.toLowerCase();
+    const filterComprovante = document.getElementById('filterComprovante').value.toLowerCase();
+    const filterResponsavel = document.getElementById('filterResponsavel').value;
+
+    const colCredito = achar(['Crédito', 'credito']);
+    const colCTE = achar(['CTE', 'cte']);
+    const colResponsavel = achar(['Responsável', 'responsável']);
+
+    const dadosFiltrados = dadosExcel.filter(linha => {
+      const credito = String(linha[colCredito] || '').trim().toLowerCase();
+      const cte = String(linha[colCTE] || '').trim();
+      const responsavel = String(linha[colResponsavel] || '').trim();
+      const temImagem = cte && imagesGithub[cte];
+
+      let passaCreditoFilter = !filterCredito || credito === filterCredito;
+      let passaComprovanteFilter = !filterComprovante || (filterComprovante === 'com' && temImagem) || (filterComprovante === 'sem' && !temImagem);
+      let passaResponsavelFilter = !filterResponsavel || responsavel === filterResponsavel;
+
+      return passaCreditoFilter && passaComprovanteFilter && passaResponsavelFilter;
+    });
+
+    renderizarTabela(dadosFiltrados);
+  }
+
+  function limparFiltros() {
+    document.getElementById('filterCredito').value = '';
+    document.getElementById('filterComprovante').value = '';
+    document.getElementById('filterResponsavel').value = '';
+    aplicarFiltrosAutomatico();
+  }
+
+  function abrirModal(cte) {
+    const imageContainer = document.getElementById('imageContainer');
+    imageContainer.innerHTML = '';
+    if (imagesGithub[cte]) {
+      const img = document.createElement('img');
+      img.src = imagesGithub[cte];
+      img.style.cursor = 'pointer';
+      img.onclick = () => window.open(imagesGithub[cte], '_blank');
+      imageContainer.appendChild(img);
+    }
+    document.getElementById('imageModal').style.display = 'block';
+  }
+
+  function fecharModal() {
+    document.getElementById('imageModal').style.display = 'none';
+  }
+
+  function mostrarLoading() {
+    document.querySelector('.loading').style.display = 'block';
+  }
+
+  function ocultarLoading() {
+    document.querySelector('.loading').style.display = 'none';
+  }
+
+  function mostrarMensagem(texto, tipo) {
+    const messageDiv = document.getElementById('message');
+    messageDiv.className = `message ${tipo}`;
+    messageDiv.textContent = texto;
+    setTimeout(() => messageDiv.textContent = '', 5000);
+  }
+
+  document.getElementById('uploadExcel').addEventListener('click', () => document.getElementById('fileInput').click());
+  document.getElementById('fileInput').addEventListener('change', (e) => {
+    if (e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        processarArquivoExcel(event.target.result);
+        mostrarMensagem('Excel carregado com sucesso!', 'success');
       };
-      leitor.readAsDataURL(arquivo);
+      reader.readAsArrayBuffer(e.target.files[0]);
     }
   });
-});
+
+  document.getElementById('uploadExcel').addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.currentTarget.style.borderColor = '#007bff';
+    e.currentTarget.style.backgroundColor = '#f0f8ff';
+  });
+  document.getElementById('uploadExcel').addEventListener('dragleave', (e) => {
+    e.currentTarget.style.borderColor = '#ddd';
+    e.currentTarget.style.backgroundColor = 'transparent';
+  });
+  document.getElementById('uploadExcel').addEventListener('drop', (e) => {
+    e.preventDefault();
+    e.currentTarget.style.borderColor = '#ddd';
+    e.currentTarget.style.backgroundColor = 'transparent';
+    if (e.dataTransfer.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        processarArquivoExcel(event.target.result);
+        mostrarMensagem('Excel carregado com sucesso!', 'success');
+      };
+      reader.readAsArrayBuffer(e.dataTransfer.files[0]);
+    }
+  });
+
+  document.getElementById('uploadImages').addEventListener('click', () => document.getElementById('imageInput').click());
+  document.getElementById('imageInput').addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      for (let file of e.target.files) {
+        const nomeSemExtensao = file.name.replace(/\.[^/.]+$/, '');
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          imagesGithub[nomeSemExtensao] = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+      mostrarMensagem(`${e.target.files.length} imagem(ns) carregada(s)!`, 'success');
+      aplicarFiltrosAutomatico();
+    }
+  });
+
+  document.getElementById('uploadImages').addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.currentTarget.style.borderColor = '#007bff';
+    e.currentTarget.style.backgroundColor = '#f0f8ff';
+  });
+  document.getElementById('uploadImages').addEventListener('dragleave', (e) => {
+    e.currentTarget.style.borderColor = '#ddd';
+    e.currentTarget.style.backgroundColor = 'transparent';
+  });
+  document.getElementById('uploadImages').addEventListener('drop', (e) => {
+    e.preventDefault();
+    e.currentTarget.style.borderColor = '#ddd';
+    e.currentTarget.style.backgroundColor = 'transparent';
+    if (e.dataTransfer.files.length > 0) {
+      for (let file of e.dataTransfer.files) {
+        const nomeSemExtensao = file.name.replace(/\.[^/.]+$/, '');
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          imagesGithub[nomeSemExtensao] = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+      mostrarMensagem(`${e.dataTransfer.files.length} imagem(ns) carregada(s)!`, 'success');
+      aplicarFiltrosAutomatico();
+    }
+  });
+
+  document.getElementById('filterCredito').addEventListener('change', aplicarFiltrosAutomatico);
+  document.getElementById('filterComprovante').addEventListener('change', aplicarFiltrosAutomatico);
+  document.getElementById('filterResponsavel').addEventListener('change', aplicarFiltrosAutomatico);
+
+  window.onclick = (event) => {
+    const modal = document.getElementById('imageModal');
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  };
 </script>
+
 </body>
 </html>
