@@ -155,7 +155,7 @@
         <th>Responsável</th>
         <th>NF Whi - Eletrônica</th>
         <th>Motivo</th>
-        <th>última ocorrência</th>
+        <th>Última Ocorrência</th>
         <th>Comprovante</th>
       </tr>
     </thead>
@@ -206,6 +206,7 @@
       const nome = String(cabecalho[i] || '').trim().toLowerCase();
       colunasExcel[nome] = i;
     }
+    console.log('Colunas mapeadas:', colunasExcel);
   }
 
   function formatarMoeda(valor) {
@@ -270,7 +271,7 @@
   }
 
   function preencherFiltros() {
-    const colResponsavel = achar(['Responsável', 'responsável']);
+    const colResponsavel = achar(['responsável']);
     const responsavelSet = new Set();
     dadosExcel.forEach(linha => {
       if (colResponsavel !== -1 && linha[colResponsavel]) {
@@ -278,6 +279,7 @@
       }
     });
     const selectResponsavel = document.getElementById('filterResponsavel');
+    selectResponsavel.innerHTML = '<option value="">-- Todos --</option>';
     const opcoes = Array.from(responsavelSet).sort();
     opcoes.forEach(opcao => {
       const option = document.createElement('option');
@@ -288,10 +290,9 @@
   }
 
   function atualizarEstatisticas() {
-    const colCredito = achar(['Crédito', 'credito']);
-    const colValor = achar(['Valor', 'valor']);
-    const colCTE = achar(['CTE', 'cte']);
-    const colDataEnvio = achar(['Data Envio Base', 'data envio base']);
+    const colCredito = achar(['credito']);
+    const colValor = achar(['valor']);
+    const colCTE = achar(['cte']);
 
     let totalRegistros = 0;
     let totalDebito = 0;
@@ -324,12 +325,21 @@
       return;
     }
 
-    const colCredito = achar(['Crédito', 'credito']);
-    const colCTE = achar(['CTE', 'cte']);
-    const colResponsavel = achar(['Responsável', 'responsável']);
-    const colNF = achar(['NF Whi - Eletrônica', 'NF Whi']);
-    const colMotivo = achar(['Motivo', 'motivo']);
-    const colUltimaOcorrencia = achar(['última ocorrência', 'ultima ocorrencia']);
+    const colCredito = achar(['credito']);
+    const colCTE = achar(['cte']);
+    const colResponsavel = achar(['responsável']);
+    const colNF = achar(['nf whi - eletrônica']);
+    const colMotivo = achar(['motivo']);
+    const colUltimaOcorrencia = achar(['ultima ocorrencia']);
+
+    console.log('Índices de colunas:', {
+      credito: colCredito,
+      cte: colCTE,
+      responsavel: colResponsavel,
+      nf: colNF,
+      motivo: colMotivo,
+      ultimaOcorrencia: colUltimaOcorrencia
+    });
 
     dados.forEach(linha => {
       const tr = document.createElement('tr');
@@ -348,9 +358,7 @@
         <td>${nf}</td>
         <td>${motivo}</td>
         <td>${ultimaOcorrencia}</td>
-        <td>
-          ${temImagem ? `<span class="image-cell" onclick="abrirModal('${cte}')"><i class="fas fa-image"></i> Ver</span>` : 'Sem comprovante'}
-        </td>
+        <td>${temImagem ? `<span class="image-cell" onclick="abrirModal('${cte}')"><i class="fas fa-image"></i> Ver</span>` : 'Sem comprovante'}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -361,9 +369,9 @@
     const filterComprovante = document.getElementById('filterComprovante').value.toLowerCase();
     const filterResponsavel = document.getElementById('filterResponsavel').value;
 
-    const colCredito = achar(['Crédito', 'credito']);
-    const colCTE = achar(['CTE', 'cte']);
-    const colResponsavel = achar(['Responsável', 'responsável']);
+    const colCredito = achar(['credito']);
+    const colCTE = achar(['cte']);
+    const colResponsavel = achar(['responsável']);
 
     const dadosFiltrados = dadosExcel.filter(linha => {
       const credito = String(linha[colCredito] || '').trim().toLowerCase();
